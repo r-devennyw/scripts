@@ -1,8 +1,6 @@
 //DEPS org.bouncycastle:bcpkix-jdk18on:1.78.1
 
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -21,7 +19,6 @@ import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
@@ -32,21 +29,20 @@ public class GenKeys {
 
     // --- Configuration ---
     // The algorithm for the key pair generation
-    private static final String KEY_ALGORITHM = "EC";
-    // The elliptic curve specification for the key pair generation
-    private static final int KEY_SIZE = 256;
-    // The signature algorithm for the self-signed certificate
-    private static final String SIGNATURE_ALGORITHM = "SHA256withECDSA";
+    private static final String KEY_ALGORITHM = "RSA";
+    private static final int KEY_SIZE = 2048;
+    private static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
 
     // The password for the PFX (PKCS#12) file
     private static final char[] PFX_PASSWORD = createPassword().toCharArray();
 
     // Output filenames
     private static final String PRIVATE_KEY_AND_CERT_PFX_FILE = APP_NAME + "_private_key.pfx";
-    private static final String PUBLIC_KEY_PEM_FILE = APP_NAME + "_public_key.pem";
 
     // Common Name (CN) for the self-signed certificate
     private static final X500Name CERTIFICATE_NAME = new X500Name("CN=" + APP_NAME);
+
+    private static final String CERT_FILE = APP_NAME + "_certificate.cer";
 
     public static void main(String... args) throws Exception {
         // 1. Add the Bouncy Castle security provider
@@ -71,8 +67,8 @@ public class GenKeys {
         System.out.println("✅ Private key and certificate exported successfully.");
 
         // 5. Export the public key to a PEM file
-        System.out.printf("🔑 Exporting public key to %s...%n", PUBLIC_KEY_PEM_FILE);
-        exportToPem(keyPair);
+        System.out.printf("🔑 Exporting public key to %s...%n", CERT_FILE);
+        exportCertToFile(certificate);
         System.out.println("✅ Public key exported successfully.");
 
         System.out.printf("✅ Password for PFX file %s %n", new String(PFX_PASSWORD));
@@ -120,16 +116,17 @@ public class GenKeys {
             keyStore.store(fos, PFX_PASSWORD); // Password to protect the entire keystore
         }
     }
-    
-    private static void exportToPem(KeyPair keyPair) throws IOException {
-        try (JcaPEMWriter pemWriter = new JcaPEMWriter(new FileWriter(PUBLIC_KEY_PEM_FILE))) {
-            pemWriter.writeObject(keyPair.getPublic());
-        }
-    }
 
     private static String createPassword() {
         byte[] b = new byte[32];
         new Random().nextBytes(b);
         return Base64.getEncoder().encodeToString(b);
     }
+
+    private static void exportCertToFile(X509Certificate cert) throws Exception {
+        try (FileOutputStream fos = new FileOutputStream(CERT_FILE)) {
+            fos.write(cert.getEncoded());
+        }
+    }
+
 }
