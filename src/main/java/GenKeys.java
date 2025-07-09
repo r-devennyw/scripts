@@ -2,17 +2,12 @@
 
 import java.io.FileOutputStream;
 import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.Provider;
-import java.security.Security;
+import java.security.*;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Random;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
@@ -24,8 +19,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
 public class GenKeys {
 
-    // TODO UPDATE THIS CONSTANT WITH THE NAME OF YOUR APP, e.g. DigitalSignage
-    private static final String APP_NAME = "CHANGE_ME";
+    private static String APP_NAME;
 
     // --- Configuration ---
     // The algorithm for the key pair generation
@@ -45,6 +39,13 @@ public class GenKeys {
     private static final String CERT_FILE = APP_NAME + "_certificate.cer";
 
     public static void main(String... args) throws Exception {
+        if (args.length == 0) {
+            System.err.println("❌ Please provide an application name as the first argument.");
+            System.exit(1);
+        }
+
+        APP_NAME = args[0];
+
         // 1. Add the Bouncy Castle security provider
         Provider bcProvider = new BouncyCastleProvider();
         Security.addProvider(bcProvider);
@@ -119,9 +120,10 @@ public class GenKeys {
 
     private static String createPassword() {
         byte[] b = new byte[32];
-        new Random().nextBytes(b);
+        new SecureRandom().nextBytes(b);
         return Base64.getEncoder().encodeToString(b);
     }
+
 
     private static void exportCertToFile(X509Certificate cert) throws Exception {
         try (FileOutputStream fos = new FileOutputStream(CERT_FILE)) {
