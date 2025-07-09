@@ -40,7 +40,7 @@ public class GenKeys {
 
     public static void main(String... args) throws Exception {
         if (args.length == 0) {
-            System.err.println("❌ Please provide an application name as the first argument.");
+            System.err.println("Please provide an application name as the first argument.");
             System.exit(1);
         }
 
@@ -51,30 +51,30 @@ public class GenKeys {
         Security.addProvider(bcProvider);
 
         // 2. Generate an Elliptic Curve key pair
-        System.out.println("🔄 Generating EC key pair...");
+        System.out.println(" Generating EC key pair...");
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KEY_ALGORITHM, bcProvider);
         keyPairGenerator.initialize(KEY_SIZE);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
-        System.out.println("✅ Private key generated successfully.");
+        System.out.println(" Private key generated successfully.");
 
         // 3. Create a self-signed certificate
-        System.out.println("📜 Creating a self-signed certificate...");
+        System.out.println(" Creating a self-signed certificate...");
         X509Certificate certificate = createSelfSignedCertificate(keyPair);
-        System.out.println("✅ Self-signed certificate created.");
+        System.out.println(" Self-signed certificate created.");
         
         // 4. Export the private key and certificate to a PFX file
-        System.out.printf("🔐 Exporting private key and certificate to %s...%n", PRIVATE_KEY_AND_CERT_PFX_FILE);
+        System.out.printf(" Exporting private key and certificate to %s...%n", PRIVATE_KEY_AND_CERT_PFX_FILE);
         exportToPfx(keyPair, certificate);
-        System.out.println("✅ Private key and certificate exported successfully.");
+        System.out.println(" Private key and certificate exported successfully.");
 
         // 5. Export the public key to a PEM file
-        System.out.printf("🔑 Exporting public key to %s...%n", CERT_FILE);
+        System.out.printf(" Exporting public key to %s...%n", CERT_FILE);
         exportCertToFile(certificate);
-        System.out.println("✅ Public key exported successfully.");
+        System.out.println(" Public key exported successfully.");
 
-        System.out.printf("✅ Password for PFX file %s %n", new String(PFX_PASSWORD));
+        System.out.printf(" Password for PFX file %s %n", new String(PFX_PASSWORD));
         
-        System.out.println("\n✨ All operations completed!");
+        System.out.println("\n All operations completed!");
     }
 
     private static X509Certificate createSelfSignedCertificate(KeyPair keyPair) throws Exception {
